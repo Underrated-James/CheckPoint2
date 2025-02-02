@@ -1,18 +1,21 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
-import HomeScreen from './GameMenu';
-import SettingsScreen from './Settings';
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import GameMenu from "./GameMenu";
+import SettingsScreen from "./Settings";
 
-const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
-const Tabs = () => {
+const AppNavigator = () => {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-    </Tab.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false, // ✅ Hides header for all screens
+      }}
+    >
+      <Stack.Screen name="GameMenu" component={GameMenu} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+    </Stack.Navigator>
   );
 };
 
-export default Tabs; // Ensure a default export exists
+export default AppNavigator;
