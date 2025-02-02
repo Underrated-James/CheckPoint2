@@ -1,6 +1,18 @@
-import { registerRootComponent } from 'expo';
-import App from './app'; // Ensure this path is correct
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import HomeScreen from './GameMenu';
+import SettingsScreen from './Settings';
 
-console.log("index.tsx is rendering"); // Log statement to confirm rendering
+const Tab = createBottomTabNavigator();
 
-registerRootComponent(App);
+const Tabs = () => {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
+    </Tab.Navigator>
+  );
+};
+
+export default Tabs; // Ensure a default export exists

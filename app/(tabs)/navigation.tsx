@@ -1,8 +1,8 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import GameMenu from "../(tabs)/_layout";
-import SettingsScreen from "../(tabs)/Settings";
+import GameMenu from "./GameMenu";  // Import the new GameMenu screen
+import SettingsScreen from "./Settings"; // Import your settings screen
 
 const Stack = createStackNavigator();
 

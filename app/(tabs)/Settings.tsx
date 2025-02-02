@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Switch, TouchableOpacity, StyleSheet } from "react-native";
-import Slider from "@react-native-community/slider"; // Correct import
+import Slider from "@react-native-community/slider";
 import { Audio } from "expo-av";
-import { useNavigation } from "@react-navigation/native"; // Import navigation
+import { useNavigation } from "@react-navigation/native";
 
-const clickSoundFile = require("../../assets/sounds/settings.mp3"); // Button click sound
-const voiceSettings = require("../../assets/sounds/settings.mp3"); // Voice saying "Settings"
+const clickSoundFile = require("../../assets/sounds/settings.mp3");
+const voiceSettings = require("../../assets/sounds/settings.mp3");
 
 const SettingsScreen: React.FC = () => {
-  const navigation = useNavigation(); // Initialize navigation
+  const navigation = useNavigation();
   const [soundEffects, setSoundEffects] = useState(true);
   const [musicVolume, setMusicVolume] = useState(0.5);
   const [voiceOver, setVoiceOver] = useState(true);
   let clickSound: Audio.Sound | null = null;
 
   useEffect(() => {
-    console.log("SettingsScreen is rendering"); // Log statement to confirm rendering
+    console.log("SettingsScreen is rendering");
     return () => {
       if (clickSound) {
         clickSound.unloadAsync();
@@ -57,7 +57,7 @@ const SettingsScreen: React.FC = () => {
           minimumValue={0}
           maximumValue={1}
           value={musicVolume}
-          onValueChange={(value: number) => setMusicVolume(value)} // Fixed TypeScript error
+          onValueChange={(value: number) => setMusicVolume(value)}
         />
       </View>
 
@@ -66,10 +66,13 @@ const SettingsScreen: React.FC = () => {
         <Switch value={voiceOver} onValueChange={toggleVoiceOver} />
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={() => {
-        playClickSound();
-        navigation.goBack(); // Navigate back to GameMenu
-      }}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          playClickSound();
+          navigation.goBack();
+        }}
+      >
         <Text style={styles.buttonText}>Back</Text>
       </TouchableOpacity>
     </View>
