@@ -143,25 +143,26 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start", // Adjusted to prevent items from being pushed down
     alignItems: "center",
+    paddingTop: 25, // Added padding to ensure header isn't too high
   },
   header: {
     fontSize: 24,
     color: "#fff",
-    marginBottom: 20,
+    marginBottom: 15,
     textAlign: "center",
     fontFamily: "PressStart2P",
   },
   settingBox: {
-    backgroundColor: "rgba(0, 0, 0, 0.6)", // Light black transparent background
-    padding: 15,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    padding: 5,
     borderRadius: 10,
     width: "80%",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 5,
   },
   text: {
     fontSize: 16,
@@ -172,11 +173,14 @@ const styles = StyleSheet.create({
     width: 150,
   },
   button: {
-    marginTop: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    backgroundColor: "rgba(165, 42, 42, 0.8)", // Brown button
-    borderRadius: 10,
+    position: "absolute",
+    bottom: 30, // Positioned at the bottom
+    alignSelf: "center",
+    marginBottom: -25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: "rgba(165, 42, 42, 0.9)", // Slightly more opaque for better visibility
+    borderRadius: 20,
     borderWidth: 2,
     borderColor: "#fff",
   },
@@ -187,5 +191,7 @@ const styles = StyleSheet.create({
     fontFamily: "PressStart2P",
   },
 });
+
+
 
 export default SettingsScreen;

@@ -9,16 +9,19 @@ import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
 // Define navigation types
 type RootStackParamList = {
   GameMenu: undefined;
   Settings: undefined;
+  GameScreen: undefined;
 };
 
 type NavigationType = NavigationProp<RootStackParamList>;
 
 // Import assets
-import backgroundImage from "../../assets/images/473753636_9289227874474994_6464077677548443709_n.jpg";
+import backgroundImage from "../../assets/images/Background2.jpg";
+import ColorblindMode from "../../assets/images/BackGColorBlind.jpg";
 const backgroundMusic = require("../../assets/sounds/Heroes.mp3");
 const clickSoundFile = require("../../assets/sounds/settings.mp3");
 
@@ -101,7 +104,8 @@ const GameMenu: React.FC = () => {
         </Animatable.Text>
         <View style={styles.buttonWrapper}>
           <Animatable.View animation="bounceIn" duration={1500} style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={() => console.log("Starting game...")}> 
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("GameScreen")}>
+ 
               <Text style={styles.buttonText}>Start Game</Text>
             </TouchableOpacity>
           </Animatable.View>
