@@ -1,98 +1,89 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { View, StyleSheet, TouchableOpacity, Image, Dimensions } from "react-native";
 import { GameEngine } from "react-native-game-engine";
-
 import Matter, { Engine, World, Bodies, Body } from "matter-js";
-import playerSprite from "../../assets/images/download.png"; // Your character sprite
+import tilemap from "../../assets/images/MapTile.png"; // Background map
+import CharacterSprite from "./CharacterSprite"; // Import animated sprite
 
-// Define screen dimensions
 const { width, height } = Dimensions.get("window");
 
-// Define the type for the entities object
-interface Entities {
-  player: { body: Body; renderer: React.FC<{ body: Body }> };
-}
+// Physics system to update the engine
+const Physics = (entities: { physics: { engine: Engine }; player: { body: Body; position: { x: number; y: number } } }, { time }: { time: { delta: number } }) => {
+  if (!entities.physics || !entities.physics.engine || !entities.player) return entities;
 
-// Define the physics function with explicit typing
-const physics = (entities: any, { touches }: { touches: any[] }) => { 
-
-  let move = { x: 0, y: 0 };
-
-  touches
-    .filter((t) => t.type === "move")
-    .forEach((t) => {
-      move = { x: t.delta?.pageX || 0, y: t.delta?.pageY || 0 };
-    });
-
-  const player = entities.player.body;
-  Matter.Body.setVelocity(player, {
-    x: move.x * 0.1,
-    y: move.y * 0.1,
-  });
+  Matter.Engine.update(entities.physics.engine, time.delta);
+  entities.player.position = { ...entities.player.body.position }; // Ensure position updates
 
   return entities;
 };
 
-// Player component
-const Player: React.FC<{ body: Body }> = ({ body }) => {
-  const x = body.position.x - 25;
-  const y = body.position.y - 25;
-
-  return <Image source={playerSprite} style={[styles.sprite, { left: x, top: y }]} />;
-};
-
 const GameScreen: React.FC = () => {
   const engineRef = useRef<Engine | null>(null);
-  const [running, setRunning] = useState(true);
+  const [playerBody, setPlayerBody] = useState<Body | null>(null);
+  const [frameIndex, setFrameIndex] = useState(0);
+  const [direction, setDirection] = useState(0); // 0 = down, 1 = left, 2 = right, 3 = up
 
   useEffect(() => {
-    const engine = Matter.Engine.create({ enableSleeping: false });
-    const world = engine.world;
-    engineRef.current = engine;
+    if (!engineRef.current) {
+      engineRef.current = Matter.Engine.create({ enableSleeping: false });
+      engineRef.current.world.gravity.y = 0; // Disable gravity for RPG movement
+    }
 
-    const player = Matter.Bodies.rectangle(width / 2, height / 2, 50, 50, { frictionAir: 0.1 });
-    Matter.World.add(world, player);
-
-    engine.world.gravity.y = 0; // Disable gravity for a top-down RPG
+    if (!playerBody) {
+      const player = Matter.Bodies.rectangle(width / 2, height / 2, 64, 64, { frictionAir: 0.1, inertia: Infinity });
+      Matter.World.add(engineRef.current.world, player);
+      setPlayerBody(player);
+    }
 
     return () => {
-      Matter.Engine.clear(engine);
+      if (engineRef.current) Matter.Engine.clear(engineRef.current);
     };
   }, []);
 
+  // Function to move player & animate sprite
+  const movePlayer = (dx: number, dy: number, newDirection: number) => {
+    if (playerBody) {
+      Matter.Body.setVelocity(playerBody, { x: dx, y: dy });
+      setDirection(newDirection);
+      setFrameIndex((prev) => (prev + 1) % 4);
+    }
+  };
+
+  // Extracted function to prevent re-creation
+  const renderPlayer = useCallback(
+    () => (playerBody ? <CharacterSprite body={playerBody} frameIndex={frameIndex} direction={direction} /> : null),
+    [playerBody, frameIndex, direction]
+  );
+
   return (
     <View style={styles.container}>
+      {/* Tilemap Background */}
+      <Image source={tilemap} style={[styles.tilemap, { zIndex: -1 }]} resizeMode="cover" />
+
       <GameEngine
-        systems={[physics]}
+        systems={[Physics]}
         entities={{
-          player: { body: Matter.Bodies.rectangle(width / 2, height / 2, 50, 50), renderer: Player },
+          physics: { engine: engineRef.current as Engine, world: engineRef.current?.world as World },
+          player: {
+            body: playerBody || Matter.Bodies.rectangle(width / 2, height / 2, 64, 64),
+            position: playerBody?.position || { x: width / 2, y: height / 2 },
+            renderer: renderPlayer, // Stable function reference
+          },
         }}
-        running={running}
       />
+
       {/* Buttons for Movement */}
       <View style={styles.controls}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => engineRef.current && Matter.Body.setVelocity(engineRef.current.world.bodies[0], { x: 0, y: -5 })}
-        >
+        <TouchableOpacity style={styles.button} onPress={() => movePlayer(0, -5, 3)}>
           <Image source={require("../../assets/images/up.png")} style={styles.arrow} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => engineRef.current && Matter.Body.setVelocity(engineRef.current.world.bodies[0], { x: 0, y: 5 })}
-        >
+        <TouchableOpacity style={styles.button} onPress={() => movePlayer(0, 5, 0)}>
           <Image source={require("../../assets/images/down.png")} style={styles.arrow} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => engineRef.current && Matter.Body.setVelocity(engineRef.current.world.bodies[0], { x: -5, y: 0 })}
-        >
+        <TouchableOpacity style={styles.button} onPress={() => movePlayer(-5, 0, 1)}>
           <Image source={require("../../assets/images/left.png")} style={styles.arrow} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => engineRef.current && Matter.Body.setVelocity(engineRef.current.world.bodies[0], { x: 5, y: 0 })}
-        >
+        <TouchableOpacity style={styles.button} onPress={() => movePlayer(5, 0, 2)}>
           <Image source={require("../../assets/images/right.png")} style={styles.arrow} />
         </TouchableOpacity>
       </View>
@@ -102,7 +93,7 @@ const GameScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "black" },
-  sprite: { position: "absolute", width: 50, height: 50 },
+  tilemap: { position: "absolute", width: width, height: height, resizeMode: "cover" },
   controls: { position: "absolute", bottom: 20, flexDirection: "row", justifyContent: "center", width: "100%" },
   button: { margin: 10, padding: 10, backgroundColor: "rgba(0, 0, 0, 0.5)", borderRadius: 5 },
   arrow: { width: 30, height: 30 },
